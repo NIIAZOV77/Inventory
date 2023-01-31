@@ -13,7 +13,7 @@ def open_file(file, mode):
 # Функция для отображения
 def showing():
     data_file = open_file('data.txt', 'r')
-    data = [['Номер'], ['Инвентарный номер'], ['Бухгалтерский Номер'], ['Ответсвенное лицо']]
+    data = [['Номер'], ['Инвентарный номер'], ['Бухгалтерский Номер'], ['Ответственное лицо']]
     for line in data_file.readlines():
         data_line = line.rstrip().split(' ', 3)
         for i in range(4):
@@ -33,14 +33,14 @@ def showing():
         win.grid_columnconfigure(i, minsize=150)
 
 
-# Функция для добавления новой записи
-def add_new():
+# Функция для изменения данных
+def refactoring(mode):
     win = Toplevel()
     win.geometry('600x500')
     win['bg'] = 'black'
     win.grab_set()
     win.resizable(width=False, height=False)
-    top_label = Label(win, text='Добавление записи',
+    top_label = Label(win, text='Добавление записи' if mode == 'add_new' else 'Удаление записи',
                       width=600,
                       height=2,
                       font='Arial 12',
@@ -82,6 +82,9 @@ def add_new():
     input4.pack()
 
     def add_new_to_file():
+        if input1.get() == '' or input2.get() == '' or input3.get() == '' or input4.get() == '':
+            Label(win, text='Ошибка! Пустое значение', bg='black', fg='red', font='Arial 12').pack()
+            return 0
         str_data = ''.join([input1.get(), ' ', input2.get(), ' ', input3.get(), ' ', input4.get()])
         str_add = '\n' + str_data
         data_write = open_file('data.txt', 'a')
@@ -90,66 +93,10 @@ def add_new():
         data_write.close()
         end_label = Label(win, text='Новая запись добавлена',
                           width=50, height=1,
-                          font='Arial 10',
+                          font='Arial 12',
                           bg='black', fg='white',
                           pady=10)
         end_label.pack()
-
-    btn = Button(win, command=add_new_to_file,
-                 text='Готово',
-                 height=2, width=20,
-                 background='lightgray',
-                 activebackground='yellow')
-    btn.pack(pady=20)
-
-
-# Функция для удаления новой записи
-def delete():
-    win = Toplevel()
-    win.geometry('600x500')
-    win['bg'] = 'black'
-    win.grab_set()
-    win.resizable(width=False, height=False)
-    top_label = Label(win, text='Удаление записи',
-                      width=600,
-                      height=2,
-                      font='Arial 12',
-                      background='lightgray', )
-    top_label.pack()
-    top_list = ['Введите номер', 'Введите инвентарный номер',
-                'Введите бухгалтерский номер', 'Введите ответственное лицо']
-    l1 = Label(win, text=top_list[0],
-               width=50, height=1,
-               font='Arial 10',
-               bg='black', fg='white',
-               pady=10)
-    l1.pack()
-    input1 = Entry(win, width=50, bg='lightgray')
-    input1.pack()
-    l2 = Label(win, text=top_list[1],
-               width=50, height=1,
-               font='Arial 10',
-               bg='black', fg='white',
-               pady=10)
-    l2.pack()
-    input2 = Entry(win, width=50, bg='lightgray')
-    input2.pack()
-    l3 = Label(win, text=top_list[2],
-               width=50, height=1,
-               font='Arial 10',
-               bg='black', fg='white',
-               pady=10)
-    l3.pack()
-    input3 = Entry(win, width=50, bg='lightgray')
-    input3.pack()
-    l4 = Label(win, text=top_list[3],
-               width=50, height=1,
-               font='Arial 10',
-               bg='black', fg='white',
-               pady=10)
-    l4.pack()
-    input4 = Entry(win, width=50, bg='lightgray')
-    input4.pack()
 
     def delete_from_file():
         str_data = ''.join([input1.get(), ' ', input2.get(), ' ', input3.get(), ' ', input4.get()])
@@ -158,13 +105,15 @@ def delete():
         lines[-1] = lines[-1] + '\n'
         data_del.close()
         str_del = str_data
+
         if str_del + '\n' not in lines:
             Label(win, text='Ошибка! Совпадений нет', bg='black', fg='red', font='Arial 12').pack()
-
             return 0
+
         lines.remove(str_del + '\n')
         lines[-1] = lines[-1].rstrip()
         changed_data = open_file('data.txt', 'w')
+
         for line in lines:
             changed_data.write(line)
         changed_data.close()
@@ -175,12 +124,22 @@ def delete():
                           pady=10)
         end_label.pack()
 
-    btn = Button(win, command=delete_from_file,
+    btn = Button(win, command=add_new_to_file if mode == 'add_new' else delete_from_file,
                  text='Готово',
                  height=2, width=20,
                  background='lightgray',
                  activebackground='yellow')
     btn.pack(pady=20)
+
+
+# Функция для добавления новой записи
+def add_new():
+    refactoring('add_new')
+
+
+# Функция для удаления новой записи
+def delete():
+    refactoring('delete')
 
 
 def main():
