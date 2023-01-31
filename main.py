@@ -13,28 +13,24 @@ def open_file(file, mode):
 # Функция для отображения
 def showing():
     data_file = open_file('data.txt', 'r')
-    data = []
+    data = [['Номер'], ['Инвентарный номер'], ['Бухгалтерский Номер'], ['Ответсвенное лицо']]
     for line in data_file.readlines():
-        data.append(line)
+        data_line = line.rstrip().split(' ', 3)
+        for i in range(4):
+            data[i].append(data_line[i])
+
     data_file.close()
     win = Toplevel()
     win.geometry('600x500')
     win['bg'] = 'black'
     win.grab_set()
     win.resizable(width=False, height=False)
-    top_label = Label(win, text='Номер инвентарный  Номер бухгалтерский Номер ответсвенное лицо',
-                      width=600,
-                      height=2,
-                      font='Arial 10',
-                      background='lightgray', )
-    top_label.pack()
+    win.title('Просмотр всех данных')
+    for i in range(len(data[0])):
+        for j in range(4):
+            (Label(win, text=data[j][i], font='Arial 10', bg='black', fg='white').grid(row=i, column=j))
 
-    for line in data:
-        line = line.replace(' ', '\t', 3)
-        l1 = Label(win, text=line,
-                   width=100, height=2,
-                   bg='black', fg='white')
-        l1.pack()
+        win.grid_columnconfigure(i, minsize=150)
 
 
 # Функция для добавления новой записи
@@ -162,6 +158,10 @@ def delete():
         lines[-1] = lines[-1] + '\n'
         data_del.close()
         str_del = str_data
+        if str_del + '\n' not in lines:
+            Label(win, text='Ошибка! Совпадений нет', bg='black', fg='red', font='Arial 12').pack()
+
+            return 0
         lines.remove(str_del + '\n')
         lines[-1] = lines[-1].rstrip()
         changed_data = open_file('data.txt', 'w')
@@ -170,7 +170,7 @@ def delete():
         changed_data.close()
         end_label = Label(win, text='Запись удалена',
                           width=50, height=1,
-                          font='Arial 10',
+                          font='Arial 12',
                           bg='black', fg='white',
                           pady=10)
         end_label.pack()
@@ -192,33 +192,18 @@ def main():
 
     l1 = Label(root, text='Выберите пункт', width=600, height=2, font='Arial 20', background='lightgray')
     l1.pack()
-    btn1 = Button(root, command=showing,
-                  text='Просмотр всех данных',
-                  height=4, width=40,
-                  background='lightgray',
-                  activebackground='yellow')
-    btn1.pack(pady=10)
 
-    btn2 = Button(root, command=add_new,
-                  text='Добавление записи',
-                  height=4, width=40,
-                  background='lightgray',
-                  activebackground='yellow')
-    btn2.pack(pady=10)
+    buttons_data = {'Просмотр всех данных': showing,
+                    'Добавление записи': add_new,
+                    'Удаление записи': delete,
+                    'Выход из программы': root.destroy}
 
-    btn3 = Button(root, command=delete,
-                  text='Удаление записи',
-                  height=4, width=40,
-                  background='lightgray',
-                  activebackground='yellow')
-    btn3.pack(pady=10)
-
-    btn4 = Button(root, command=root.destroy,
-                  text='Выход из программы',
-                  height=4, width=40,
-                  background='lightgray',
-                  activebackground='yellow')
-    btn4.pack(pady=10)
+    for text, command in buttons_data.items():
+        Button(root, command=command,
+               text=text,
+               height=4, width=40,
+               background='lightgray', font='Arial 12',
+               activebackground='yellow').pack(pady=10)
 
     root.mainloop()
 
